@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friend Chat - WhatsApp-like Messaging</title>
+    <meta name="description" content="A modern web-based chat application with real-time messaging and stories">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal active">
+        <div class="modal-content auth-container">
+            <div class="auth-header">
+                <div class="logo">
+                    <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
+                        <circle cx="25" cy="25" r="23" fill="url(#gradient1)" stroke="#25D366" stroke-width="2"/>
+                        <path d="M15 25C15 25 18 20 25 20C32 20 35 25 35 25C35 25 32 30 25 30C18 30 15 25 15 25Z" fill="white"/>
+                        <circle cx="25" cy="25" r="3" fill="#25D366"/>
+                        <defs>
+                            <linearGradient id="gradient1" x1="0" y1="0" x2="50" y2="50">
+                                <stop offset="0%" stop-color="#25D366"/>
+                                <stop offset="100%" stop-color="#128C7E"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <h1>Friend Chat</h1>
+                </div>
+                <p class="tagline">Connect with friends instantly</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="signup">Sign Up</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <span>Login</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M4 10H16M16 10L12 6M16 10L12 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </form>
+            
+            <!-- Signup Form -->
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label for="signupUsername">Username</label>
+                    <input type="text" id="signupUsername" placeholder="Your name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <span>Create Account</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M4 10H16M16 10L12 6M16 10L12 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </form>
+            
+            <div id="authError" class="error-message"></div>
+        </div>
+    </div>
+    
+    <!-- Main App -->
+    <div id="app" class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- User Profile Header -->
+            <div class="sidebar-header">
+                <div class="user-profile">
+                    <img id="userAvatar" src="/uploads/avatars/default.png" alt="Profile" class="avatar">
+                    <div class="user-info">
+                        <h3 id="userName">User</h3>
+                        <span class="user-status online">Online</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" id="storiesBtn" title="Stories">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn" id="newChatBtn" title="New Chat">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn" id="menuBtn" title="Menu">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="6" r="1.5" fill="currentColor"/>
+                            <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                            <circle cx="12" cy="18" r="1.5" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Stories Section -->
+            <div class="stories-section" id="storiesSection">
+                <div class="stories-container" id="storiesContainer">
+                    <!-- Stories will be added here dynamically -->
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="2"/>
+                    <path d="M14 14L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Search or start new chat">
+            </div>
+            
+            <!-- Chats List -->
+            <div class="chats-list" id="chatsList">
+                <!-- Chat items will be added here dynamically -->
+            </div>
+        </aside>
+        
+        <!-- Chat Area -->
+        <main class="chat-area">
+            <!-- Welcome Screen -->
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="welcome-content">
+                    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                        <circle cx="60" cy="60" r="55" fill="url(#welcomeGradient)" opacity="0.1"/>
+                        <path d="M40 60C40 60 48 50 60 50C72 50 80 60 80 60C80 60 72 70 60 70C48 70 40 60 40 60Z" fill="url(#welcomeGradient)"/>
+                        <circle cx="60" cy="60" r="8" fill="white"/>
+                        <defs>
+                            <linearGradient id="welcomeGradient" x1="0" y1="0" x2="120" y2="120">
+                                <stop offset="0%" stop-color="#25D366"/>
+                                <stop offset="100%" stop-color="#128C7E"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <h2>Welcome to Friend Chat</h2>
+                    <p>Select a chat to start messaging</p>
+                </div>
+            </div>
+            
+            <!-- Chat Window -->
+            <div class="chat-window" id="chatWindow" style="display: none;">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="chat-user-info">
+                        <img id="chatUserAvatar" src="/uploads/avatars/default.png" alt="User" class="avatar">
+                        <div>
+                            <h3 id="chatUserName">Friend</h3>
+                            <span id="chatUserStatus" class="user-status">offline</span>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="icon-btn" id="searchMessagesBtn" title="Search">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+                                <path d="M16 16L20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                        <button class="icon-btn" id="chatMenuBtn" title="Menu">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="6" r="1.5" fill="currentColor"/>
+                                <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                                <circle cx="12" cy="18" r="1.5" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Pinned Messages -->
+                <div class="pinned-messages" id="pinnedMessages" style="display: none;">
+                    <div class="pinned-header">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M9.828 3l3.172 3.172-4.5 4.5-1.5 3.328-1-1 3.328-1.5z"/>
+                        </svg>
+                        <span>Pinned Messages</span>
+                    </div>
+                    <div id="pinnedMessagesList"></div>
+                </div>
+                
+                <!-- Messages Container -->
+                <div class="messages-container" id="messagesContainer">
+                    <div id="typingIndicator" class="typing-indicator" style="display: none;">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Message Input -->
+                <div class="message-input-container">
+                    <button class="icon-btn" id="attachBtn" title="Attach">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <div class="message-input-wrapper">
+                        <input type="text" id="messageInput" placeholder="Type a message">
+                        <button class="icon-btn emoji-btn" title="Emoji">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                <path d="M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="9" cy="9" r="1" fill="currentColor"/>
+                                <circle cx="15" cy="9" r="1" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <button class="icon-btn send-btn" id="sendBtn" title="Send">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Story Viewer Modal -->
+    <div id="storyViewer" class="modal story-viewer">
+        <div class="story-viewer-content">
+            <button class="close-btn" id="closeStoryBtn">×</button>
+            <div class="story-header">
+                <img id="storyUserAvatar" src="" alt="User" class="avatar">
+                <div>
+                    <h4 id="storyUserName"></h4>
+                    <span id="storyTime"></span>
+                </div>
+            </div>
+            <div class="story-progress">
+                <div class="progress-bar" id="storyProgress"></div>
+            </div>
+            <div class="story-media-container">
+                <img id="storyMedia" src="" alt="Story">
+            </div>
+            <button class="story-nav prev" id="prevStory">‹</button>
+            <button class="story-nav next" id="nextStory">›</button>
+        </div>
+    </div>
+    
+    <!-- Upload Story Modal -->
+    <div id="uploadStoryModal" class="modal">
+        <div class="modal-content upload-story-container">
+            <h2>Upload Story</h2>
+            <div class="upload-area" id="uploadArea">
+                <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                    <path d="M30 10V50M10 30H50" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+                <p>Click or drag image/video here</p>
+                <input type="file" id="storyFileInput" accept="image/*,video/*" hidden>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelStoryBtn">Cancel</button>
+                <button class="btn btn-primary" id="uploadStoryBtn" disabled>Upload</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu" style="display: none;">
+        <button class="context-menu-item" data-action="pin">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M9.828 3l3.172 3.172-4.5 4.5-1.5 3.328-1-1 3.328-1.5z"/>
+            </svg>
+            <span>Pin Message</span>
+        </button>
+        <button class="context-menu-item" data-action="delete">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+            </svg>
+            <span>Delete for me</span>
+        </button>
+        <button class="context-menu-item" data-action="deleteForEveryone">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+            </svg>
+            <span>Delete for everyone</span>
+        </button>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/stories.js"></script>
+</body>
+</html>
