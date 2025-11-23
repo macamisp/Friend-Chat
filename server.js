@@ -153,11 +153,24 @@ app.get('/api/users', async (req, res) => {
   try {
     const { data: users, error } = await supabase
       .from('users')
-      .select('id, username, email, avatar, status, created_at');
+      .select('id, username, email, avatar, status, bio, profile_picture, last_seen, created_at');
 
     if (error) throw error;
 
-    res.json(users || []);
+    // Format users with profile pictures and online status
+    const formattedUsers = (users || []).map(user => ({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      avatar: user.profile_picture || user.avatar,
+      status: user.status,
+      bio: user.bio,
+      lastSeen: user.last_seen,
+      online: user.last_seen && (new Date() - new Date(user.last_seen)) < 5 * 60 * 1000,
+      createdAt: user.created_at
+    }));
+
+    res.json(formattedUsers);
   } catch (error) {
     console.error('Get users error:', error);
     res.status(500).json({ error: error.message });
@@ -273,6 +286,197 @@ app.post('/api/stories', async (req, res) => {
     res.json(formattedStory);
   } catch (error) {
     console.error('Add story error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== VERSION 2.0 - PROFILE & SEARCH ENDPOINTS =====
+
+// Get user profile
+app.get('/api/profile/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, username, email, avatar, status, bio, profile_picture, last_seen, privacy_settings, created_at')
+      .eq('id', userId)
+      .single();
+
+    if (error) throw error;
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Format response
+    const profile = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      avatar: user.profile_picture || user.avatar,
+      status: user.status,
+      bio: user.bio,
+      lastSeen: user.last_seen,
+      privacySettings: user.privacy_settings,
+      createdAt: user.created_at
+    };
+
+    res.json(profile);
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update user profile
+app.put('/api/profile/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { username, bio, status, privacySettings } = req.body;
+
+    const updates = {};
+    if (username !== undefined) updates.username = username;
+    if (bio !== undefined) updates.bio = bio.substring(0, 150); // Max 150 chars
+    if (status !== undefined) updates.status = status;
+    if (privacySettings !== undefined) updates.privacy_settings = privacySettings;
+
+    const { data: updatedUser, error } = await supabase
+      .from('users')
+      .update(updates)
+      .eq('id', userId)
+      .select('id, username, email, avatar, status, bio, profile_picture, privacy_settings')
+      .single();
+
+    if (error) throw error;
+
+    const profile = {
+      id: updatedUser.id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      avatar: updatedUser.profile_picture || updatedUser.avatar,
+      status: updatedUser.status,
+      bio: updatedUser.bio,
+      privacySettings: updatedUser.privacy_settings
+    };
+
+    res.json({ success: true, user: profile });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Upload profile avatar
+app.post('/api/profile/avatar', upload.single('avatar'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const { userId } = req.body;
+    const avatarUrl = `/${req.file.path.replace(/\\/g, '/')}`;
+
+    // Update user's profile_picture in database
+    const { error } = await supabase
+      .from('users')
+      .update({ profile_picture: avatarUrl })
+      .eq('id', userId);
+
+    if (error) throw error;
+
+    res.json({ success: true, url: avatarUrl });
+  } catch (error) {
+    console.error('Upload avatar error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Search users
+app.get('/api/search/users', async (req, res) => {
+  try {
+    const { q: query, filter = 'all' } = req.query;
+
+    if (!query || query.trim().length === 0) {
+      return res.json([]);
+    }
+
+    let queryBuilder = supabase
+      .from('users')
+      .select('id, username, email, avatar, bio, profile_picture, status, last_seen');
+
+    // Search by username or email using full-text search
+    queryBuilder = queryBuilder.or(`username.ilike.%${query}%,email.ilike.%${query}%`);
+
+    // Apply filters
+    if (filter === 'online') {
+      // Users active in last 5 minutes
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+      queryBuilder = queryBuilder.gte('last_seen', fiveMinutesAgo);
+    }
+
+    queryBuilder = queryBuilder.limit(20);
+
+    const { data: users, error } = await queryBuilder;
+
+    if (error) throw error;
+
+    // Format results
+    const results = (users || []).map(user => ({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      avatar: user.profile_picture || user.avatar,
+      bio: user.bio,
+      status: user.status,
+      online: user.last_seen && (new Date() - new Date(user.last_seen)) < 5 * 60 * 1000
+    }));
+
+    res.json(results);
+  } catch (error) {
+    console.error('Search users error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Change password
+app.put('/api/user/password', async (req, res) => {
+  try {
+    const { userId, currentPassword, newPassword } = req.body;
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    // Get current user
+    const { data: user, error: fetchError } = await supabase
+      .from('users')
+      .select('password')
+      .eq('id', userId)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    // Verify current password
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ password: hashedPassword })
+      .eq('id', userId);
+
+    if (updateError) throw updateError;
+
+    res.json({ success: true, message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Change password error:', error);
     res.status(500).json({ error: error.message });
   }
 });
