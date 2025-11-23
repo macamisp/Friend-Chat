@@ -83,9 +83,10 @@
 - **Express.js** - Web framework
 - **Socket.IO** - WebSocket implementation
 - **Multer** - File upload handling
+- **Supabase** - PostgreSQL database with real-time features
 
 ### Storage
-- **JSON Files** - Lightweight data storage
+- **Supabase (PostgreSQL)** - Production database
 - **File System** - Media and uploads storage
 
 ---
@@ -96,6 +97,7 @@
 - **Node.js** (v18 or higher)
 - **npm** or **yarn**
 - **Git**
+- **Supabase Account** (free tier available)
 
 ### Quick Start
 
@@ -110,12 +112,22 @@ cd Friend-Chat
 npm install
 ```
 
-3. **Start the server**
+3. **Set up Supabase Database**
+   - Go to [Supabase Dashboard](https://app.supabase.com)
+   - Navigate to SQL Editor
+   - Run the SQL from `supabase-schema.sql`
+   - See [SUPABASE_SETUP.md](SUPABASE_SETUP.md) for detailed instructions
+
+4. **Configure Environment Variables**
+   - The `.env` file is already configured with Supabase credentials
+   - Update if you're using a different Supabase project
+
+5. **Start the server**
 ```bash
 npm start
 ```
 
-4. **Open your browser**
+6. **Open your browser**
 ```
 http://localhost:3000
 ```
