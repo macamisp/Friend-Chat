@@ -290,6 +290,89 @@ app.post('/api/stories', async (req, res) => {
   }
 });
 
+// Get user's own stories
+app.get('/api/stories/user/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const { data: stories, error } = await supabase
+      .from('stories')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Convert snake_case to camelCase
+    const formattedStories = (stories || []).map(story => ({
+      id: story.id,
+      userId: story.user_id,
+      mediaUrl: story.media_url,
+      type: story.type,
+      views: story.views || [],
+      createdAt: story.created_at,
+      expiresAt: story.expires_at
+    }));
+
+    res.json(formattedStories);
+  } catch (error) {
+    console.error('Get user stories error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete story
+app.delete('/api/stories/:storyId', async (req, res) => {
+  try {
+    const { storyId } = req.params;
+    const { userId } = req.body;
+
+    // Get story to verify ownership
+    const { data: story, error: fetchError } = await supabase
+      .from('stories')
+      .select('*')
+      .eq('id', storyId)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    if (!story) {
+      return res.status(404).json({ error: 'Story not found' });
+    }
+
+    // Verify ownership
+    if (story.user_id !== userId) {
+      return res.status(403).json({ error: 'Unauthorized to delete this story' });
+    }
+
+    // Delete from database
+    const { error: deleteError } = await supabase
+      .from('stories')
+      .delete()
+      .eq('id', storyId);
+
+    if (deleteError) throw deleteError;
+
+    // Try to delete file from filesystem (optional, may fail if file doesn't exist)
+    if (story.media_url) {
+      const filePath = path.join(__dirname, 'public', story.media_url);
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+        } catch (err) {
+          console.error('Error deleting file:', err);
+          // Don't fail the request if file deletion fails
+        }
+      }
+    }
+
+    res.json({ success: true, message: 'Story deleted successfully' });
+  } catch (error) {
+    console.error('Delete story error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ===== VERSION 2.0 - PROFILE & SEARCH ENDPOINTS =====
 
 // Get user profile
