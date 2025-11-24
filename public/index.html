@@ -365,6 +365,202 @@
                     d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
                 <path
                     d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                ```
+                <img id="chatUserAvatar" src="/uploads/avatars/default.png" alt="User" class="avatar">
+                <div>
+                    <h3 id="chatUserName">Friend</h3>
+                    <span id="chatUserStatus" class="user-status">offline</span>
+                </div>
+    </div>
+    <div class="chat-actions">
+        <button class="icon-btn" id="searchMessagesBtn" title="Search">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+                <path d="M16 16L20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+        </button>
+        <button class="icon-btn" id="chatMenuBtn" title="Menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="6" r="1.5" fill="currentColor" />
+                <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+                <circle cx="12" cy="18" r="1.5" fill="currentColor" />
+            </svg>
+        </button>
+    </div>
+    </div>
+
+    <!-- Pinned Messages -->
+    <div class="pinned-messages" id="pinnedMessages" style="display: none;">
+        <div class="pinned-header">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M9.828 3l3.172 3.172-4.5 4.5-1.5 3.328-1-1 3.328-1.5z" />
+            </svg>
+            <span>Pinned Messages</span>
+        </div>
+        <div id="pinnedMessagesList"></div>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="messages-container" id="messagesContainer">
+        <div id="typingIndicator" class="typing-indicator" style="display: none;">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Input -->
+    <div class="message-input-container">
+        <button class="icon-btn" id="attachBtn" title="Attach">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+        </button>
+        <div class="message-input-wrapper">
+            <input type="text" id="messageInput" placeholder="Type a message">
+            <button class="icon-btn emoji-btn" title="Emoji">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                    <path d="M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" />
+                    <circle cx="9" cy="9" r="1" fill="currentColor" />
+                    <circle cx="15" cy="9" r="1" fill="currentColor" />
+                </svg>
+            </button>
+        </div>
+        <button class="icon-btn send-btn" id="sendBtn" title="Send">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </button>
+    </div>
+    </div>
+    </main>
+    </div>
+
+    <!-- Story Viewer Modal -->
+    <div id="storyViewer" class="modal story-viewer">
+        <div class="story-viewer-content">
+            <button class="close-btn" id="closeStoryBtn">×</button>
+            <div class="story-header">
+                <img id="storyUserAvatar" src="" alt="User" class="avatar">
+                <div>
+                    <h4 id="storyUserName"></h4>
+                    <span id="storyTime"></span>
+                </div>
+            </div>
+            <div class="story-progress">
+                <div class="progress-bar" id="storyProgress"></div>
+            </div>
+            <div class="story-media-container">
+                <img id="storyMedia" src="" alt="Story">
+            </div>
+            <button class="story-nav prev" id="prevStory">‹</button>
+            <button class="story-nav next" id="nextStory">›</button>
+        </div>
+    </div>
+
+    <!-- Upload Story Modal -->
+    <div id="uploadStoryModal" class="modal">
+        <div class="modal-content upload-story-container">
+            <h2>Upload Story</h2>
+            <div class="upload-area" id="uploadArea">
+                <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                    <path d="M30 10V50M10 30H50" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+                </svg>
+                <p>Click or drag image/video here</p>
+                <input type="file" id="storyFileInput" accept="image/*,video/*" hidden>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelStoryBtn">Cancel</button>
+                <button class="btn btn-primary" id="uploadStoryBtn" disabled>Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Edit Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content profile-edit-container">
+            <h2>Edit Profile</h2>
+            <div class="profile-edit-form">
+                <!-- Avatar Upload -->
+                <div class="avatar-upload-section">
+                    <div class="avatar-preview-wrapper">
+                        <img id="profilePreview" class="profile-preview" src="/uploads/avatars/default.png"
+                            alt="Profile">
+                        <div class="avatar-overlay">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4ZM12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6ZM12 8C10.8954 8 10 8.89543 10 10C10 11.1046 10.8954 12 12 12C13.1046 12 14 11.1046 14 10C14 8.89543 13.1046 8 12 8ZM12 13C9.79086 13 8 14.7909 8 17H16C16 14.7909 14.2091 13 12 13Z"
+                                    fill="currentColor" />
+                            </svg>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" id="changeAvatarBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                                fill="currentColor" />
+                        </svg>
+                        Change Photo
+                    </button>
+                    <input type="file" id="avatarInput" accept="image/*" hidden>
+                </div>
+
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="profileUsername">Username</label>
+                    <input type="text" id="profileUsername" placeholder="Your name" maxlength="50">
+                </div>
+
+                <!-- About -->
+                <div class="form-group">
+                    <label for="profileAbout">About</label>
+                    <textarea id="profileAbout" placeholder="Tell us about yourself..." maxlength="150"
+                        rows="3"></textarea>
+                    <span class="char-count" id="bioCharCount">0/150</span>
+                </div>
+
+                <!-- Actions -->
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="cancelProfileBtn">Cancel</button>
+                    <button class="btn btn-primary" id="saveProfileBtn">
+                        <span>Save Changes</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu" style="display: none;">
+        <button class="context-menu-item" data-action="pin">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M9.828 3l3.172 3.172-4.5 4.5-1.5 3.328-1-1 3.328-1.5z" />
+            </svg>
+            <span>Pin Message</span>
+        </button>
+        <button class="context-menu-item" data-action="delete">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path
+                    d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                <path
+                    d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+            </svg>
+            <span>Delete for me</span>
+        </button>
+        <button class="context-menu-item" data-action="deleteForEveryone">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path
+                    d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                <path
+                    d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
             </svg>
             <span>Delete for everyone</span>
         </button>
@@ -375,6 +571,8 @@
     <script src="js/app.js"></script>
     <script src="js/chat.js"></script>
     <script src="js/stories.js"></script>
+    <script src="js/profile.js"></script>
 </body>
 
 </html>
+```
